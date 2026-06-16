@@ -1,0 +1,113 @@
+import { useNavigate } from "react-router-dom";
+
+export default function Home({ addToCart }) {
+  const navigate = useNavigate();
+
+  return (
+    <div>
+      {/* Hero */}
+      <section style={{ background: "#2A1208", padding: "56px 20px" }}>
+        <div style={{ maxWidth: 1140, margin: "0 auto", display: "flex", alignItems: "center", gap: 56 }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ color: "#C9A84C", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 700, marginBottom: 14 }}>Fairfax County's Premier Specialty Shop</div>
+            <h1 style={{ fontSize: 46, color: "#F5EDE3", lineHeight: 1.15, fontWeight: 700, marginBottom: 18 }}>
+              Rooted in Tradition.<br />
+              <span style={{ color: "#C9A84C" }}>Crafted for Today.</span>
+            </h1>
+            <p style={{ fontSize: 15, color: "#C4A882", lineHeight: 1.8, marginBottom: 30, maxWidth: 460 }}>
+              Choose your origin, pick your roast, add your spices. Your perfect cup, built by you — shipped from Stafford, VA.
+            </p>
+            <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+              <button onClick={() => navigate("/coffee")} style={{ background: "#C9A84C", color: "#2A1208", border: "none", borderRadius: 32, padding: "14px 32px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif" }}>
+                Shop Origins →
+              </button>
+              <button onClick={() => navigate("/our-story")} style={{ background: "none", color: "#F5EDE3", border: "1.5px solid rgba(245,237,227,0.3)", borderRadius: 32, padding: "14px 28px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+                Our Story
+              </button>
+            </div>
+            <div style={{ display: "flex", gap: 32, marginTop: 36 }}>
+              {[["8", "Origins"], ["4", "Roast Levels"], ["⭐ 4.9", "Rating"]].map(([v, l]) => (
+                <div key={l}>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: "#C9A84C" }}>{v}</div>
+                  <div style={{ fontSize: 10, color: "#9B7B5B", letterSpacing: "0.06em", textTransform: "uppercase", marginTop: 2 }}>{l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ width: 260, height: 260, borderRadius: "50%", border: "3px solid #C9A84C", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <div style={{ width: 216, height: 216, borderRadius: "50%", border: "1px solid rgba(201,168,76,0.25)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 80 }}>☕</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Category Strip */}
+      <div style={{ background: "#3D1F0D", display: "flex", overflowX: "auto" }}>
+        {[["☕", "Coffee", "8 origins", "/coffee"], ["🍵", "Tea", "6 blends", "/tea"], ["🌿", "Spices", "4 varieties", "/spices"], ["🌴", "Dates", "4 types", "/dates"], ["🎁", "Gift Sets", "8 sets", "/gift-sets"]].map(([ic, nm, ct, path]) => (
+          <button key={nm} onClick={() => navigate(path)} style={{ flex: 1, minWidth: 110, padding: "16px 12px", background: "none", border: "none", borderRight: "1px solid rgba(245,237,227,0.1)", textAlign: "center", cursor: "pointer" }}>
+            <div style={{ fontSize: 20, marginBottom: 4 }}>{ic}</div>
+            <div style={{ color: "#F5EDE3", fontSize: 11, fontWeight: 700 }}>{nm}</div>
+            <div style={{ color: "#9B7B5B", fontSize: 10, marginTop: 1 }}>{ct}</div>
+          </button>
+        ))}
+      </div>
+
+      {/* Promo Bar */}
+      <div style={{ background: "linear-gradient(90deg,#C9A84C,#E8C97A,#C9A84C)", padding: "12px 20px", textAlign: "center", fontSize: 13, fontWeight: 700, color: "#2A1208" }}>
+        🌙 New: Ramadan Gift Sets now available · Free shipping over $50
+      </div>
+
+      {/* Why Us */}
+      <div style={{ background: "#3D1F0D", padding: "52px 20px" }}>
+        <div style={{ maxWidth: 1140, margin: "0 auto" }}>
+          <div style={{ color: "#C9A84C", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 700, textAlign: "center", marginBottom: 8 }}>Why NAMA Coffee & Co?</div>
+          <h2 style={{ fontSize: 32, color: "#F5EDE3", textAlign: "center", marginBottom: 36 }}>We Obsess Over Quality</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 32 }}>
+            {[["🌍", "Origin-First Coffee", "We source each bean directly from the country that grew it"], ["🔥", "Roasted to Order", "Tell us your roast level and we roast fresh before shipping"], ["🌿", "Spiced Your Way", "Add cardamom, saffron, cinnamon or cloves — blended in fresh"], ["📦", "Ships from VA", "Based in Stafford, VA — quick delivery throughout the DC metro area"]].map(([ic, t, d]) => (
+              <div key={t} style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 34, marginBottom: 12 }}>{ic}</div>
+                <div style={{ color: "#C9A84C", fontSize: 16, fontWeight: 700, marginBottom: 8 }}>{t}</div>
+                <div style={{ color: "#9B7B5B", fontSize: 13, lineHeight: 1.7 }}>{d}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Testimonials */}
+      <div style={{ background: "#FBF5EE", padding: "52px 20px" }}>
+        <div style={{ maxWidth: 1140, margin: "0 auto" }}>
+          <div style={{ color: "#C9A84C", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 700, textAlign: "center", marginBottom: 8 }}>Customer Love</div>
+          <h2 style={{ fontSize: 32, color: "#3D1F0D", textAlign: "center", marginBottom: 36 }}>What Our Neighbors Are Saying</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 20 }}>
+            {[["Layla H.", "Fairfax, VA", "The Yemen Mocha with cardamom brought me right back to my grandmother's kitchen in Beirut. Absolutely authentic."], ["Marcus T.", "Reston, VA", "I ordered the Kenya AA and the Medjool dates as a gift. Gorgeous packaging and exceptional quality."], ["Sara K.", "McLean, VA", "The Ethiopia Yirgacheffe light roast is my new morning ritual. I love being able to pick the roast level myself!"]].map(([n, l, t]) => (
+              <div key={n} style={{ background: "#F5EDE3", border: "1.5px solid #E0D0BC", borderRadius: 16, padding: 24 }}>
+                <div style={{ color: "#C9A84C", fontSize: 15, marginBottom: 10 }}>★★★★★</div>
+                <p style={{ fontSize: 13, color: "#6B3A1F", lineHeight: 1.8, fontStyle: "italic", marginBottom: 16 }}>"{t}"</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#3D1F0D", color: "#C9A84C", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14 }}>{n[0]}</div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#3D1F0D" }}>{n}</div>
+                    <div style={{ fontSize: 11, color: "#8C7B6B" }}>{l}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Newsletter */}
+      <div style={{ background: "linear-gradient(135deg,#3D1F0D,#5C2E10)", padding: "52px 20px", textAlign: "center" }}>
+        <div style={{ maxWidth: 520, margin: "0 auto" }}>
+          <div style={{ color: "#C9A84C", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 700, marginBottom: 8 }}>Stay Connected</div>
+          <h2 style={{ fontSize: 28, color: "#F5EDE3", margin: "8px 0 10px" }}>Join the NAMA Community</h2>
+          <p style={{ color: "#9B7B5B", fontSize: 14, lineHeight: 1.7, marginBottom: 26 }}>Get early access to new origins, seasonal specials, and brewing tips.</p>
+          <div style={{ display: "flex", gap: 10, maxWidth: 420, margin: "0 auto" }}>
+            <input type="email" placeholder="your@email.com" style={{ flex: 1, padding: "13px 18px", borderRadius: 28, border: "1.5px solid rgba(201,168,76,0.35)", background: "rgba(245,237,227,0.07)", color: "#F5EDE3", fontSize: 13, outline: "none" }} />
+            <button style={{ background: "#C9A84C", color: "#2A1208", border: "none", borderRadius: 28, padding: "13px 22px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Subscribe</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
