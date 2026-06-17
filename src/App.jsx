@@ -10,6 +10,11 @@ import Spices from "./pages/Spices";
 import Dates from "./pages/Dates";
 import GiftSets from "./pages/GiftSets";
 import OurStory from "./pages/OurStory";
+import FAQ from "./pages/FAQ";
+import Shipping from "./pages/Shipping";
+import Returns from "./pages/Returns";
+import Contact from "./pages/Contact";
+import TrackOrder from "./pages/TrackOrder";
 
 export default function App() {
   const [cart, setCart] = useState([]);
@@ -40,6 +45,11 @@ export default function App() {
           <Route path="/dates" element={<Dates addToCart={addToCart} />} />
           <Route path="/gift-sets" element={<GiftSets addToCart={addToCart} />} />
           <Route path="/our-story" element={<OurStory />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/shipping" element={<Shipping />} />
+          <Route path="/returns" element={<Returns />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/track-order" element={<TrackOrder />} />
         </Routes>
         <Footer />
         {cartOpen && (
