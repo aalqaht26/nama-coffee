@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const COFFEES = [
   { id: "c1", origin: "Yemen", region: "Haraaz Mountains", flagCode: "ye", notes: "Dark fruit, tamarind, wine-like, earthy", img: "/Yemen.png", prices: { oz12: 24.99, lb1: 34.99, lb5: 149.99 }, tag: "Bestseller" },
@@ -44,7 +44,6 @@ const TAG_COLORS = {
   Rare:       { bg: "#7B2D2D", color: "#F5EDE3" },
 };
 
-// Coffee bean SVG icon colored by roast
 function BeanIcon({ color, size = 28 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -67,48 +66,56 @@ function FlagImg({ code, size = 28 }) {
   );
 }
 
-// Sale price display
-function PriceTag({ original, style = {} }) {
-  const discounted = salePrice(original);
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", ...style }}>
-      <span style={{ fontSize: 11, color: "#9B3B3B", textDecoration: "line-through", fontWeight: 600 }}>${original.toFixed(2)}</span>
-      <span style={{ fontSize: 18, fontWeight: 700, color: "#3D1F0D", lineHeight: 1.1 }}>${discounted}</span>
-      <span style={{ fontSize: 10, background: "#9B3B3B", color: "#fff", borderRadius: 10, padding: "1px 6px", fontWeight: 700, marginTop: 2 }}>SAVE {SALE_PCT}%</span>
-    </div>
-  );
-}
-
-// Lightbox
+// Improved lightbox with scroll-to-pan zoom (same as Spices/Tea)
 function ImageLightbox({ coffee, onClose, onCustomize }) {
   const [zoomed, setZoomed] = useState(false);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [dragging, setDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [scrollY, setScrollY] = useState(0);
+  const containerRef = useRef(null);
 
-  const handleMouseDown = (e) => { if (!zoomed) return; setDragging(true); setDragStart({ x: e.clientX - offset.x, y: e.clientY - offset.y }); };
-  const handleMouseMove = (e) => { if (!dragging) return; setOffset({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y }); };
-  const handleMouseUp = () => setDragging(false);
-  const toggleZoom = (e) => { e.stopPropagation(); if (zoomed) { setZoomed(false); setOffset({ x: 0, y: 0 }); } else setZoomed(true); };
+  const handleWheel = (e) => {
+    if (!zoomed) return;
+    e.preventDefault();
+    setScrollY((prev) => Math.max(-400, Math.min(400, prev + e.deltaY * 0.8)));
+  };
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.addEventListener("wheel", handleWheel, { passive: false });
+    return () => el.removeEventListener("wheel", handleWheel);
+  }, [zoomed]);
+
+  const toggleZoom = (e) => {
+    e.stopPropagation();
+    if (zoomed) { setZoomed(false); setScrollY(0); }
+    else setZoomed(true);
+  };
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(42,18,8,0.92)", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 16 }} onClick={onClose}>
       <button onClick={onClose} style={{ position: "fixed", top: 20, right: 20, background: "#3D1F0D", border: "2px solid #C9A84C", borderRadius: "50%", width: 40, height: 40, color: "#F5EDE3", fontSize: 20, cursor: "pointer", zIndex: 600, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
       <div style={{ color: "rgba(245,237,227,0.7)", fontSize: 12, letterSpacing: "0.08em" }}>
-        {zoomed ? "🔍 Click image to zoom out · Drag to pan" : "🔍 Click image to zoom in and read details"}
+        {zoomed ? "🔍 Scroll up/down to pan · Click to zoom out" : "🔍 Click image to zoom in · Then scroll to explore"}
       </div>
-      <div onClick={(e) => e.stopPropagation()} style={{ overflow: zoomed ? "hidden" : "visible", width: zoomed ? "85vw" : "auto", height: zoomed ? "82vh" : "auto", borderRadius: 16, position: "relative", cursor: zoomed ? (dragging ? "grabbing" : "grab") : "zoom-in", boxShadow: "0 24px 60px rgba(0,0,0,0.6)" }}
-        onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
-        <img src={coffee.img} alt={coffee.origin} onClick={toggleZoom}
-          style={{ width: zoomed ? "auto" : "auto", height: zoomed ? "160%" : "78vh", maxWidth: zoomed ? "none" : "75vw", objectFit: "contain", borderRadius: 16, transform: zoomed ? `translate(${offset.x}px, ${offset.y}px)` : "none", transition: dragging ? "none" : "transform 0.2s", userSelect: "none", display: "block" }}
-          draggable={false} />
+      <div
+        ref={containerRef}
+        onClick={(e) => e.stopPropagation()}
+        style={{ overflow: "hidden", width: zoomed ? "80vw" : "auto", height: zoomed ? "78vh" : "auto", borderRadius: 16, cursor: zoomed ? "zoom-out" : "zoom-in", boxShadow: "0 24px 60px rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center" }}
+      >
+        <img
+          src={coffee.img}
+          alt={coffee.origin}
+          onClick={toggleZoom}
+          style={{ height: zoomed ? "160%" : "75vh", maxWidth: zoomed ? "none" : "75vw", objectFit: "contain", borderRadius: zoomed ? 0 : 16, transform: zoomed ? `translateY(${-scrollY}px)` : "none", transition: "height 0.3s ease, transform 0.1s ease", userSelect: "none", display: "block", flexShrink: 0 }}
+          draggable={false}
+        />
       </div>
-      <div style={{ display: "flex", gap: 12, alignItems: "center" }} onClick={(e) => e.stopPropagation()}>
+      <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", justifyContent: "center", padding: "0 16px" }} onClick={(e) => e.stopPropagation()}>
         <div style={{ background: "rgba(251,245,238,0.95)", borderRadius: 10, padding: "8px 16px", display: "flex", alignItems: "center", gap: 8 }}>
           <FlagImg code={coffee.flagCode} size={22} />
           <span style={{ fontSize: 14, fontWeight: 700, color: "#3D1F0D" }}>{coffee.origin} · {coffee.region}</span>
         </div>
-        <button onClick={() => { setZoomed(false); setOffset({ x: 0, y: 0 }); onCustomize(); }}
+        <button onClick={() => { setZoomed(false); setScrollY(0); onCustomize(); }}
           style={{ background: "#C9A84C", color: "#2A1208", border: "none", borderRadius: 24, padding: "10px 24px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif" }}>
           Customize & Add to Cart →
         </button>
@@ -117,7 +124,6 @@ function ImageLightbox({ coffee, onClose, onCustomize }) {
   );
 }
 
-// Customize modal
 function CoffeeModal({ coffee, onClose, onAdd }) {
   const [size, setSize] = useState("oz12");
   const [roast, setRoast] = useState("medium");
@@ -127,7 +133,6 @@ function CoffeeModal({ coffee, onClose, onAdd }) {
   const basePrice = salePrice(coffee.prices[size] || 0);
   const spiceTotal = spices.reduce((s, id) => s + (SPICES.find((x) => x.id === id)?.price || 0), 0);
   const total = parseFloat((basePrice + spiceTotal).toFixed(2));
-  const selectedRoast = ROASTS.find((r) => r.id === roast);
 
   const handleAdd = () => {
     const sz = SIZES.find((s) => s.id === size);
@@ -157,13 +162,11 @@ function CoffeeModal({ coffee, onClose, onAdd }) {
           <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: "#3D1F0D" }}>✕</button>
         </div>
         <div style={{ padding: "20px 24px" }}>
-
-          {/* Size */}
           <div style={{ marginBottom: 22 }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: "#3D1F0D", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>Bag Size</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
               {SIZES.map((sz) => (
-                <button key={sz.id} onClick={() => setSize(sz.id)} style={{ border: `1.5px solid ${size === sz.id ? "#3D1F0D" : "#D4C4AE"}`, borderRadius: 10, padding: "10px 8px", background: size === sz.id ? "#3D1F0D" : "none", cursor: "pointer", textAlign: "center", fontFamily: "Georgia, serif", position: "relative" }}>
+                <button key={sz.id} onClick={() => setSize(sz.id)} style={{ border: `1.5px solid ${size === sz.id ? "#3D1F0D" : "#D4C4AE"}`, borderRadius: 10, padding: "10px 8px", background: size === sz.id ? "#3D1F0D" : "none", cursor: "pointer", textAlign: "center", fontFamily: "Georgia, serif" }}>
                   <span style={{ fontSize: 14, fontWeight: 700, color: size === sz.id ? "#F5EDE3" : "#3D1F0D", display: "block" }}>{sz.label}</span>
                   <span style={{ fontSize: 10, color: size === sz.id ? "rgba(245,237,227,0.6)" : "#9B3B3B", textDecoration: "line-through", display: "block" }}>${coffee.prices[sz.id].toFixed(2)}</span>
                   <span style={{ fontSize: 13, color: size === sz.id ? "#C9A84C" : "#3D1F0D", fontWeight: 700, display: "block" }}>${salePrice(coffee.prices[sz.id])}</span>
@@ -172,8 +175,6 @@ function CoffeeModal({ coffee, onClose, onAdd }) {
               ))}
             </div>
           </div>
-
-          {/* Roast */}
           <div style={{ marginBottom: 22 }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: "#3D1F0D", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>Roast Level</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8 }}>
@@ -193,8 +194,6 @@ function CoffeeModal({ coffee, onClose, onAdd }) {
               })}
             </div>
           </div>
-
-          {/* Spices */}
           <div style={{ marginBottom: 22 }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: "#3D1F0D", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>
               Add Spices <span style={{ fontWeight: 400, textTransform: "none", color: "#8C7B6B", fontSize: 11 }}>— optional, freshly blended</span>
@@ -220,8 +219,6 @@ function CoffeeModal({ coffee, onClose, onAdd }) {
               })}
             </div>
           </div>
-
-          {/* Summary */}
           <div style={{ background: "#EDE5DA", borderRadius: 12, padding: "14px 16px", marginBottom: 18 }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "#3D1F0D", marginBottom: 4 }}>
               <span>Base ({SIZES.find((sz) => sz.id === size)?.label}) <span style={{ color: "#9B3B3B", textDecoration: "line-through", fontSize: 11 }}>${coffee.prices[size].toFixed(2)}</span></span>
@@ -233,7 +230,6 @@ function CoffeeModal({ coffee, onClose, onAdd }) {
             </div>
             <div style={{ fontSize: 11, color: "#4A6741", marginTop: 6, fontWeight: 600 }}>🎉 You save ${(coffee.prices[size] - salePrice(coffee.prices[size])).toFixed(2)} with our current promotion!</div>
           </div>
-
           <button onClick={handleAdd} style={{ width: "100%", background: "#3D1F0D", color: "#F5EDE3", border: "none", borderRadius: 28, padding: 14, fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif" }}>
             Add to Cart — ${total.toFixed(2)}
           </button>
@@ -254,7 +250,6 @@ export default function Coffee({ addToCart }) {
         <div style={{ color: "#C9A84C", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 700, textAlign: "center", marginBottom: 8 }}>Single Origin</div>
         <h1 style={{ fontSize: 36, color: "#3D1F0D", textAlign: "center", marginBottom: 8 }}>Select Your Coffee Origin</h1>
 
-        {/* Sale banner */}
         <div style={{ background: "linear-gradient(90deg, #9B3B3B, #C0504D, #9B3B3B)", borderRadius: 12, padding: "10px 20px", textAlign: "center", maxWidth: 520, margin: "0 auto 32px", boxShadow: "0 4px 16px rgba(155,59,59,0.3)" }}>
           <span style={{ color: "#fff", fontSize: 14, fontWeight: 700, letterSpacing: "0.05em" }}>🔥 LIMITED TIME — {SALE_PCT}% OFF ALL ORIGINS · Use code <span style={{ background: "rgba(255,255,255,0.2)", borderRadius: 6, padding: "1px 8px" }}>NAMA15</span></span>
         </div>
@@ -263,7 +258,8 @@ export default function Coffee({ addToCart }) {
           Click any origin to view the full bag, then customize your roast and spice blend. Roasted fresh before every shipment.
         </p>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 18 }}>
+        {/* FIXED: responsive grid — 1 col mobile, 2 col tablet, 3+ col desktop */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 22 }}>
           {COFFEES.map((c) => {
             const tc = TAG_COLORS[c.tag] || { bg: "#3D1F0D", color: "#F5EDE3" };
             const origPrice = c.prices.oz12;
@@ -290,16 +286,16 @@ export default function Coffee({ addToCart }) {
                     <span style={{ background: "#9B3B3B", color: "#fff", fontSize: 9, fontWeight: 700, padding: "3px 8px", borderRadius: 20 }}>SAVE {SALE_PCT}%</span>
                   </div>
                 </div>
-                <div style={{ padding: "12px 14px 16px", flex: 1, display: "flex", flexDirection: "column", gap: 5 }}>
+                <div style={{ padding: "14px 16px 18px", flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
                   <div style={{ fontSize: 10, color: "#8C7B6B", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700 }}>{c.region}</div>
-                  <div style={{ fontSize: 14, color: "#3D1F0D", fontWeight: 700, fontFamily: "Georgia, serif" }}>{c.origin} Coffee</div>
-                  <div style={{ fontSize: 11, color: "#6B3A1F", fontStyle: "italic", lineHeight: 1.5 }}>"{c.notes}"</div>
-                  <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginTop: 8 }}>
+                  <div style={{ fontSize: 15, color: "#3D1F0D", fontWeight: 700, fontFamily: "Georgia, serif" }}>{c.origin} Coffee</div>
+                  <div style={{ fontSize: 12, color: "#6B3A1F", fontStyle: "italic", lineHeight: 1.5 }}>"{c.notes}"</div>
+                  <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginTop: 10 }}>
                     <div>
                       <div style={{ fontSize: 11, color: "#9B3B3B", textDecoration: "line-through", fontWeight: 600 }}>${origPrice.toFixed(2)}</div>
                       <div style={{ fontSize: 16, fontWeight: 700, color: "#3D1F0D" }}>${discPrice} <span style={{ fontSize: 10, color: "#8C7B6B", fontWeight: 400 }}>/ 12oz</span></div>
                     </div>
-                    <button onClick={() => setModalCoffee(c)} style={{ background: "#C9A84C", color: "#2A1208", border: "none", borderRadius: 20, padding: "7px 12px", fontSize: 10, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif", whiteSpace: "nowrap" }}>
+                    <button onClick={() => setModalCoffee(c)} style={{ background: "#C9A84C", color: "#2A1208", border: "none", borderRadius: 20, padding: "8px 16px", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif", whiteSpace: "nowrap" }}>
                       Customize →
                     </button>
                   </div>
