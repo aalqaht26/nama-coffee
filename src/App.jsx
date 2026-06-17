@@ -30,7 +30,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div style={{ fontFamily: "Georgia, 'Times New Roman', serif", background: "#F5EDE3", color: "#3D1F0D", minHeight: "100vh" }}>
+      <div style={{ fontFamily: "Georgia, 'Times New Roman', serif", background: "#F5EDE3", color: "#3D1F0D", minHeight: "100vh", width: "100%", maxWidth: "100vw", overflowX: "hidden" }}>
         <Header cartCount={cartCount} onCartOpen={() => setCartOpen(true)} />
         <Routes>
           <Route path="/" element={<Home addToCart={addToCart} />} />
