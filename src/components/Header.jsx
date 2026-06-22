@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const NAV = [
   { label: "Coffee", path: "/coffee", icon: "☕" },
@@ -56,7 +56,7 @@ export default function Header({ cartCount, onCartOpen }) {
 
         {/* Navigation */}
         <nav style={{ width: "100%", boxSizing: "border-box", display: "flex", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none", padding: "0 8px", position: "relative" }}>
-          
+
           {/* Regular nav items */}
           {NAV.map((item) => {
             const isActive = location.pathname === item.path;
@@ -92,10 +92,12 @@ export default function Header({ cartCount, onCartOpen }) {
             );
           })}
 
-          {/* About Us with click-toggle dropdown */}
-          <div style={{ position: "relative", flexShrink: 0 }}>
+          {/* About Us dropdown - opens on click, stays open until click outside */}
+          <div
+            style={{ position: "relative", flexShrink: 0 }}
+          >
             <button
-              onClick={() => setAboutOpen(!aboutOpen)}
+              onClick={() => setAboutOpen(prev => !prev)}
               style={{
                 padding: "12px 14px",
                 fontSize: 13,
@@ -109,36 +111,37 @@ export default function Header({ cartCount, onCartOpen }) {
                 flexShrink: 0,
                 borderRadius: "8px 8px 0 0",
                 background: isAboutActive || aboutOpen ? "#3D1F0D" : "transparent",
-                borderBottom: isAboutActive ? "3px solid #C9A84C" : "3px solid transparent",
+                borderBottom: isAboutActive ? "3px solid #C9A84C" : aboutOpen ? "3px solid #C9A84C" : "3px solid transparent",
                 border: "none",
                 cursor: "pointer",
                 whiteSpace: "nowrap",
                 transition: "all 0.2s",
+                height: "100%",
               }}
             >
               <span style={{ fontSize: 14 }}>📖</span>
               About Us
-              <span style={{ fontSize: 11, transition: "transform 0.2s", transform: aboutOpen ? "rotate(180deg)" : "none", display: "inline-block" }}>▾</span>
+              <span style={{ fontSize: 11, display: "inline-block", transition: "transform 0.2s", transform: aboutOpen ? "rotate(180deg)" : "rotate(0deg)" }}>▾</span>
             </button>
 
-            {/* Dropdown */}
+            {/* Dropdown menu */}
             {aboutOpen && (
               <>
-                {/* Backdrop to close */}
+                {/* invisible backdrop */}
                 <div
                   onClick={() => setAboutOpen(false)}
-                  style={{ position: "fixed", inset: 0, zIndex: 199 }}
+                  style={{ position: "fixed", inset: 0, zIndex: 198, background: "transparent" }}
                 />
                 <div style={{
                   position: "absolute",
-                  top: "100%",
+                  top: "calc(100% + 2px)",
                   left: 0,
                   background: "#FBF5EE",
-                  border: "1.5px solid #E0D0BC",
-                  borderRadius: "0 12px 12px 12px",
-                  boxShadow: "0 8px 32px rgba(61,31,13,0.18)",
-                  minWidth: 200,
-                  zIndex: 300,
+                  border: "2px solid #C9A84C",
+                  borderRadius: 12,
+                  boxShadow: "0 12px 40px rgba(61,31,13,0.2)",
+                  minWidth: 210,
+                  zIndex: 999,
                   overflow: "hidden",
                 }}>
                   {ABOUT_LINKS.map((sub, i) => (
@@ -155,14 +158,15 @@ export default function Header({ cartCount, onCartOpen }) {
                         color: location.pathname === sub.path ? "#C9A84C" : "#3D1F0D",
                         fontFamily: "Georgia, serif",
                         fontSize: 14,
-                        fontWeight: location.pathname === sub.path ? 700 : 600,
-                        background: location.pathname === sub.path ? "rgba(201,168,76,0.08)" : "#FBF5EE",
+                        fontWeight: 700,
+                        background: location.pathname === sub.path ? "rgba(201,168,76,0.1)" : "#FBF5EE",
                         borderBottom: i < ABOUT_LINKS.length - 1 ? "1px solid #EDE0CF" : "none",
+                        transition: "background 0.15s",
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = "#EDE5DA"}
-                      onMouseLeave={(e) => e.currentTarget.style.background = location.pathname === sub.path ? "rgba(201,168,76,0.08)" : "#FBF5EE"}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = "#EDE5DA"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = location.pathname === sub.path ? "rgba(201,168,76,0.1)" : "#FBF5EE"; }}
                     >
-                      <span style={{ fontSize: 18 }}>{sub.icon}</span>
+                      <span style={{ fontSize: 20 }}>{sub.icon}</span>
                       <span>{sub.label}</span>
                     </Link>
                   ))}
