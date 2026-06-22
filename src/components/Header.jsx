@@ -7,22 +7,21 @@ const NAV = [
   { label: "Spices", path: "/spices", icon: "🌿" },
   { label: "Dates", path: "/dates", icon: "🌴" },
   { label: "Gift Sets", path: "/gift-sets", icon: "🎁" },
-  {
-    label: "About Us", path: "/our-story", icon: "📖",
-    dropdown: [
-      { label: "Our Story", path: "/our-story", icon: "🏔️" },
-      { label: "Contact Us", path: "/contact", icon: "📧" },
-      { label: "FAQ", path: "/faq", icon: "❓" },
-    ]
-  },
+];
+
+const ABOUT_LINKS = [
+  { label: "Our Story", path: "/our-story", icon: "🏔️" },
+  { label: "Contact Us", path: "/contact", icon: "📧" },
+  { label: "FAQ", path: "/faq", icon: "❓" },
 ];
 
 export default function Header({ cartCount, onCartOpen }) {
   const [announce, setAnnounce] = useState(true);
   const [hovered, setHovered] = useState(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
+
+  const isAboutActive = ABOUT_LINKS.some(l => l.path === location.pathname);
 
   return (
     <>
@@ -56,92 +55,12 @@ export default function Header({ cartCount, onCartOpen }) {
         </div>
 
         {/* Navigation */}
-        <nav style={{ width: "100%", boxSizing: "border-box", display: "flex", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none", padding: "0 8px" }}>
+        <nav style={{ width: "100%", boxSizing: "border-box", display: "flex", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none", padding: "0 8px", position: "relative" }}>
+          
+          {/* Regular nav items */}
           {NAV.map((item) => {
-            const isActive = location.pathname === item.path || (item.dropdown && item.dropdown.some(d => d.path === location.pathname));
-            const isHovered = hovered === item.path;
-
-            if (item.dropdown) {
-              return (
-                <div
-                  key={item.path}
-                  style={{ position: "relative", flexShrink: 0 }}
-                  onMouseEnter={() => setDropdownOpen(true)}
-                  onMouseLeave={() => setDropdownOpen(false)}
-                >
-                  <button
-                    onClick={() => navigate(item.path)}
-                    style={{
-                      padding: "12px 14px",
-                      fontSize: 13,
-                      fontWeight: 700,
-                      color: isActive ? "#F5EDE3" : "#3D1F0D",
-                      letterSpacing: "0.04em",
-                      fontFamily: "Georgia, serif",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 5,
-                      flexShrink: 0,
-                      borderRadius: "8px 8px 0 0",
-                      background: isActive ? "#3D1F0D" : dropdownOpen ? "rgba(61,31,13,0.06)" : "transparent",
-                      borderBottom: isActive ? "3px solid #C9A84C" : "3px solid transparent",
-                      border: "none",
-                      cursor: "pointer",
-                      whiteSpace: "nowrap",
-                      transition: "all 0.2s",
-                    }}
-                  >
-                    <span style={{ fontSize: 14 }}>{item.icon}</span>
-                    {item.label}
-                    <span style={{ fontSize: 10, marginLeft: 2, opacity: 0.7 }}>▾</span>
-                  </button>
-
-                  {/* Dropdown */}
-                  {dropdownOpen && (
-                    <div style={{
-                      position: "absolute",
-                      top: "100%",
-                      left: 0,
-                      background: "#FBF5EE",
-                      border: "1.5px solid #E0D0BC",
-                      borderRadius: "0 12px 12px 12px",
-                      boxShadow: "0 8px 32px rgba(61,31,13,0.15)",
-                      minWidth: 200,
-                      zIndex: 300,
-                      overflow: "hidden",
-                    }}>
-                      {item.dropdown.map((sub) => (
-                        <Link
-                          key={sub.path}
-                          to={sub.path}
-                          onClick={() => setDropdownOpen(false)}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 10,
-                            padding: "12px 18px",
-                            textDecoration: "none",
-                            color: location.pathname === sub.path ? "#C9A84C" : "#3D1F0D",
-                            fontFamily: "Georgia, serif",
-                            fontSize: 13,
-                            fontWeight: location.pathname === sub.path ? 700 : 500,
-                            background: location.pathname === sub.path ? "rgba(201,168,76,0.08)" : "transparent",
-                            borderBottom: "1px solid #EDE0CF",
-                            transition: "background 0.15s",
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = "rgba(61,31,13,0.05)"}
-                          onMouseLeave={(e) => e.currentTarget.style.background = location.pathname === sub.path ? "rgba(201,168,76,0.08)" : "transparent"}
-                        >
-                          <span style={{ fontSize: 16 }}>{sub.icon}</span>
-                          {sub.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            }
-
+            const isActive = location.pathname === item.path;
+            const isHov = hovered === item.path;
             return (
               <Link
                 key={item.path}
@@ -152,7 +71,7 @@ export default function Header({ cartCount, onCartOpen }) {
                   padding: "12px 14px",
                   fontSize: 13,
                   fontWeight: 700,
-                  color: isActive ? "#F5EDE3" : isHovered ? "#C9A84C" : "#3D1F0D",
+                  color: isActive ? "#F5EDE3" : isHov ? "#C9A84C" : "#3D1F0D",
                   letterSpacing: "0.04em",
                   textDecoration: "none",
                   fontFamily: "Georgia, serif",
@@ -161,7 +80,7 @@ export default function Header({ cartCount, onCartOpen }) {
                   gap: 5,
                   flexShrink: 0,
                   borderRadius: "8px 8px 0 0",
-                  background: isActive ? "#3D1F0D" : isHovered ? "rgba(61,31,13,0.06)" : "transparent",
+                  background: isActive ? "#3D1F0D" : isHov ? "rgba(61,31,13,0.06)" : "transparent",
                   borderBottom: isActive ? "3px solid #C9A84C" : "3px solid transparent",
                   transition: "all 0.2s",
                   whiteSpace: "nowrap",
@@ -172,6 +91,85 @@ export default function Header({ cartCount, onCartOpen }) {
               </Link>
             );
           })}
+
+          {/* About Us with click-toggle dropdown */}
+          <div style={{ position: "relative", flexShrink: 0 }}>
+            <button
+              onClick={() => setAboutOpen(!aboutOpen)}
+              style={{
+                padding: "12px 14px",
+                fontSize: 13,
+                fontWeight: 700,
+                color: isAboutActive || aboutOpen ? "#F5EDE3" : "#3D1F0D",
+                letterSpacing: "0.04em",
+                fontFamily: "Georgia, serif",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                flexShrink: 0,
+                borderRadius: "8px 8px 0 0",
+                background: isAboutActive || aboutOpen ? "#3D1F0D" : "transparent",
+                borderBottom: isAboutActive ? "3px solid #C9A84C" : "3px solid transparent",
+                border: "none",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                transition: "all 0.2s",
+              }}
+            >
+              <span style={{ fontSize: 14 }}>📖</span>
+              About Us
+              <span style={{ fontSize: 11, transition: "transform 0.2s", transform: aboutOpen ? "rotate(180deg)" : "none", display: "inline-block" }}>▾</span>
+            </button>
+
+            {/* Dropdown */}
+            {aboutOpen && (
+              <>
+                {/* Backdrop to close */}
+                <div
+                  onClick={() => setAboutOpen(false)}
+                  style={{ position: "fixed", inset: 0, zIndex: 199 }}
+                />
+                <div style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  background: "#FBF5EE",
+                  border: "1.5px solid #E0D0BC",
+                  borderRadius: "0 12px 12px 12px",
+                  boxShadow: "0 8px 32px rgba(61,31,13,0.18)",
+                  minWidth: 200,
+                  zIndex: 300,
+                  overflow: "hidden",
+                }}>
+                  {ABOUT_LINKS.map((sub, i) => (
+                    <Link
+                      key={sub.path}
+                      to={sub.path}
+                      onClick={() => setAboutOpen(false)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 12,
+                        padding: "14px 20px",
+                        textDecoration: "none",
+                        color: location.pathname === sub.path ? "#C9A84C" : "#3D1F0D",
+                        fontFamily: "Georgia, serif",
+                        fontSize: 14,
+                        fontWeight: location.pathname === sub.path ? 700 : 600,
+                        background: location.pathname === sub.path ? "rgba(201,168,76,0.08)" : "#FBF5EE",
+                        borderBottom: i < ABOUT_LINKS.length - 1 ? "1px solid #EDE0CF" : "none",
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = "#EDE5DA"}
+                      onMouseLeave={(e) => e.currentTarget.style.background = location.pathname === sub.path ? "rgba(201,168,76,0.08)" : "#FBF5EE"}
+                    >
+                      <span style={{ fontSize: 18 }}>{sub.icon}</span>
+                      <span>{sub.label}</span>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </nav>
       </header>
     </>
