@@ -7,21 +7,15 @@ const NAV = [
   { label: "Spices", path: "/spices", icon: "🌿" },
   { label: "Dates", path: "/dates", icon: "🌴" },
   { label: "Gift Sets", path: "/gift-sets", icon: "🎁" },
-];
-
-const ABOUT_LINKS = [
   { label: "Our Story", path: "/our-story", icon: "🏔️" },
-  { label: "Contact Us", path: "/contact", icon: "📧" },
+  { label: "Contact", path: "/contact", icon: "📧" },
   { label: "FAQ", path: "/faq", icon: "❓" },
 ];
 
 export default function Header({ cartCount, onCartOpen }) {
   const [announce, setAnnounce] = useState(true);
   const [hovered, setHovered] = useState(null);
-  const [aboutOpen, setAboutOpen] = useState(false);
   const location = useLocation();
-
-  const isAboutActive = ABOUT_LINKS.some(l => l.path === location.pathname);
 
   return (
     <>
@@ -54,10 +48,8 @@ export default function Header({ cartCount, onCartOpen }) {
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav style={{ width: "100%", boxSizing: "border-box", display: "flex", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none", padding: "0 8px", position: "relative" }}>
-
-          {/* Regular nav items */}
+        {/* Navigation - simple links, scrollable */}
+        <nav style={{ width: "100%", boxSizing: "border-box", display: "flex", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none", padding: "0 8px" }}>
           {NAV.map((item) => {
             const isActive = location.pathname === item.path;
             const isHov = hovered === item.path;
@@ -91,89 +83,6 @@ export default function Header({ cartCount, onCartOpen }) {
               </Link>
             );
           })}
-
-          {/* About Us dropdown - opens on click, stays open until click outside */}
-          <div
-            style={{ position: "relative", flexShrink: 0 }}
-          >
-            <button
-              onClick={() => setAboutOpen(prev => !prev)}
-              style={{
-                padding: "12px 14px",
-                fontSize: 13,
-                fontWeight: 700,
-                color: isAboutActive || aboutOpen ? "#F5EDE3" : "#3D1F0D",
-                letterSpacing: "0.04em",
-                fontFamily: "Georgia, serif",
-                display: "flex",
-                alignItems: "center",
-                gap: 5,
-                flexShrink: 0,
-                borderRadius: "8px 8px 0 0",
-                background: isAboutActive || aboutOpen ? "#3D1F0D" : "transparent",
-                borderBottom: isAboutActive ? "3px solid #C9A84C" : aboutOpen ? "3px solid #C9A84C" : "3px solid transparent",
-                border: "none",
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-                transition: "all 0.2s",
-                height: "100%",
-              }}
-            >
-              <span style={{ fontSize: 14 }}>📖</span>
-              About Us
-              <span style={{ fontSize: 11, display: "inline-block", transition: "transform 0.2s", transform: aboutOpen ? "rotate(180deg)" : "rotate(0deg)" }}>▾</span>
-            </button>
-
-            {/* Dropdown menu */}
-            {aboutOpen && (
-              <>
-                {/* invisible backdrop */}
-                <div
-                  onClick={() => setAboutOpen(false)}
-                  style={{ position: "fixed", inset: 0, zIndex: 198, background: "transparent" }}
-                />
-                <div style={{
-                  position: "absolute",
-                  top: "calc(100% + 2px)",
-                  left: 0,
-                  background: "#FBF5EE",
-                  border: "2px solid #C9A84C",
-                  borderRadius: 12,
-                  boxShadow: "0 12px 40px rgba(61,31,13,0.2)",
-                  minWidth: 210,
-                  zIndex: 999,
-                  overflow: "hidden",
-                }}>
-                  {ABOUT_LINKS.map((sub, i) => (
-                    <Link
-                      key={sub.path}
-                      to={sub.path}
-                      onClick={() => setAboutOpen(false)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 12,
-                        padding: "14px 20px",
-                        textDecoration: "none",
-                        color: location.pathname === sub.path ? "#C9A84C" : "#3D1F0D",
-                        fontFamily: "Georgia, serif",
-                        fontSize: 14,
-                        fontWeight: 700,
-                        background: location.pathname === sub.path ? "rgba(201,168,76,0.1)" : "#FBF5EE",
-                        borderBottom: i < ABOUT_LINKS.length - 1 ? "1px solid #EDE0CF" : "none",
-                        transition: "background 0.15s",
-                      }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = "#EDE5DA"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.background = location.pathname === sub.path ? "rgba(201,168,76,0.1)" : "#FBF5EE"; }}
-                    >
-                      <span style={{ fontSize: 20 }}>{sub.icon}</span>
-                      <span>{sub.label}</span>
-                    </Link>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
         </nav>
       </header>
     </>
