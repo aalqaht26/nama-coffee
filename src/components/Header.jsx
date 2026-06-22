@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const NAV = [
   { label: "Coffee", path: "/coffee", icon: "☕" },
@@ -7,13 +7,22 @@ const NAV = [
   { label: "Spices", path: "/spices", icon: "🌿" },
   { label: "Dates", path: "/dates", icon: "🌴" },
   { label: "Gift Sets", path: "/gift-sets", icon: "🎁" },
-  { label: "Our Story", path: "/our-story", icon: "📖" },
+  {
+    label: "About Us", path: "/our-story", icon: "📖",
+    dropdown: [
+      { label: "Our Story", path: "/our-story", icon: "🏔️" },
+      { label: "Contact Us", path: "/contact", icon: "📧" },
+      { label: "FAQ", path: "/faq", icon: "❓" },
+    ]
+  },
 ];
 
 export default function Header({ cartCount, onCartOpen }) {
   const [announce, setAnnounce] = useState(true);
   const [hovered, setHovered] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -49,8 +58,90 @@ export default function Header({ cartCount, onCartOpen }) {
         {/* Navigation */}
         <nav style={{ width: "100%", boxSizing: "border-box", display: "flex", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none", padding: "0 8px" }}>
           {NAV.map((item) => {
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname === item.path || (item.dropdown && item.dropdown.some(d => d.path === location.pathname));
             const isHovered = hovered === item.path;
+
+            if (item.dropdown) {
+              return (
+                <div
+                  key={item.path}
+                  style={{ position: "relative", flexShrink: 0 }}
+                  onMouseEnter={() => setDropdownOpen(true)}
+                  onMouseLeave={() => setDropdownOpen(false)}
+                >
+                  <button
+                    onClick={() => navigate(item.path)}
+                    style={{
+                      padding: "12px 14px",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: isActive ? "#F5EDE3" : "#3D1F0D",
+                      letterSpacing: "0.04em",
+                      fontFamily: "Georgia, serif",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 5,
+                      flexShrink: 0,
+                      borderRadius: "8px 8px 0 0",
+                      background: isActive ? "#3D1F0D" : dropdownOpen ? "rgba(61,31,13,0.06)" : "transparent",
+                      borderBottom: isActive ? "3px solid #C9A84C" : "3px solid transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    <span style={{ fontSize: 14 }}>{item.icon}</span>
+                    {item.label}
+                    <span style={{ fontSize: 10, marginLeft: 2, opacity: 0.7 }}>▾</span>
+                  </button>
+
+                  {/* Dropdown */}
+                  {dropdownOpen && (
+                    <div style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      background: "#FBF5EE",
+                      border: "1.5px solid #E0D0BC",
+                      borderRadius: "0 12px 12px 12px",
+                      boxShadow: "0 8px 32px rgba(61,31,13,0.15)",
+                      minWidth: 200,
+                      zIndex: 300,
+                      overflow: "hidden",
+                    }}>
+                      {item.dropdown.map((sub) => (
+                        <Link
+                          key={sub.path}
+                          to={sub.path}
+                          onClick={() => setDropdownOpen(false)}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            padding: "12px 18px",
+                            textDecoration: "none",
+                            color: location.pathname === sub.path ? "#C9A84C" : "#3D1F0D",
+                            fontFamily: "Georgia, serif",
+                            fontSize: 13,
+                            fontWeight: location.pathname === sub.path ? 700 : 500,
+                            background: location.pathname === sub.path ? "rgba(201,168,76,0.08)" : "transparent",
+                            borderBottom: "1px solid #EDE0CF",
+                            transition: "background 0.15s",
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = "rgba(61,31,13,0.05)"}
+                          onMouseLeave={(e) => e.currentTarget.style.background = location.pathname === sub.path ? "rgba(201,168,76,0.08)" : "transparent"}
+                        >
+                          <span style={{ fontSize: 16 }}>{sub.icon}</span>
+                          {sub.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
             return (
               <Link
                 key={item.path}
